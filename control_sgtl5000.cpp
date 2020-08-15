@@ -509,7 +509,14 @@ void AudioControlSGTL5000::setAddress(uint8_t level)
 	}
 }
 
-bool AudioControlSGTL5000::enable(void)
+
+bool AudioControlSGTL5000::enable()
+{
+	return enable(false);
+}
+
+
+bool AudioControlSGTL5000::enable(bool master)
 {
 	muted = true;
 	Wire.begin();

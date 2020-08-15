@@ -34,7 +34,8 @@ class AudioControlSGTL5000 : public AudioControl
 public:
 	AudioControlSGTL5000(void) : i2c_addr(0x0A) { }
 	void setAddress(uint8_t level);
-	bool enable(bool master=false);
+	bool enable();
+	bool enable(bool master);
 	bool disable(void) { return false; }
 	bool volume(float n) { return volumeInteger(n * 129 + 0.499); }
 	bool inputLevel(float n) {return false;}
