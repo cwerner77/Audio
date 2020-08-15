@@ -46,6 +46,16 @@ int16_t * AudioPlayQueue::getBuffer(void)
 	}
 }
 
+uint32_t AudioPlayQueue::getSeqno(void)
+{
+	if (userblock) return userblock->seq;
+	while (1) {
+		userblock = allocate();
+		if (userblock) return userblock->seq;
+		yield();
+	}
+}
+
 void AudioPlayQueue::playBuffer(void)
 {
 	uint32_t h;

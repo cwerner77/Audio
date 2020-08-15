@@ -45,6 +45,8 @@ public:
 	void play(const int16_t *data, uint32_t len);
 	bool available(void);
 	int16_t * getBuffer(void);
+	uint32_t getSeqno(void);
+
 	void playBuffer(void);
 	void stop(void);
 	//bool isPlaying(void) { return playing; }
