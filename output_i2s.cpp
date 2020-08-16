@@ -97,11 +97,12 @@ void AudioOutputI2S::begin(void)
 
 void AudioOutputI2S::isr(void)
 {
+	__disable_irq();
+	isr_count++;
 #if defined(KINETISK) || defined(__IMXRT1062__)
 	int16_t *dest;
 	audio_block_t *blockL, *blockR;
 	uint32_t saddr, offsetL, offsetR;
-
 	saddr = (uint32_t)(dma.TCD->SADDR);
 	dma.clearInterrupt();
 	if (saddr < (uint32_t)i2s_tx_buffer + sizeof(i2s_tx_buffer) / 2) {
@@ -133,7 +134,6 @@ void AudioOutputI2S::isr(void)
 	} else {
 		memset(dest,0,AUDIO_BLOCK_SAMPLES * 2);
 	}
-
 	arm_dcache_flush_delete(dest, sizeof(i2s_tx_buffer) / 2 );
 
 	if (offsetL < AUDIO_BLOCK_SAMPLES) {
@@ -152,6 +152,7 @@ void AudioOutputI2S::isr(void)
 		AudioOutputI2S::block_right_1st = AudioOutputI2S::block_right_2nd;
 		AudioOutputI2S::block_right_2nd = NULL;
 	}
+	__enable_irq();
 #else
 	const int16_t *src, *end;
 	int16_t *dest;

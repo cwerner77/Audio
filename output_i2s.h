@@ -31,6 +31,8 @@
 #include "AudioStream.h"
 #include "DMAChannel.h"
 
+extern volatile uint32_t isr_count;
+
 class AudioOutputI2S : public AudioStream
 {
 public:
