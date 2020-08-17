@@ -32,7 +32,7 @@
 
 class AudioRecordQueue : public AudioStream
 {
-private:
+protected:
 #if defined(__IMXRT1062__) || defined(__MK66FX1M0__) || defined(__MK64FX512__)
 	static const int max_buffers = 209;
 #else
@@ -53,7 +53,7 @@ public:
 		enabled = 0;
 	}
 	virtual void update(void);
-private:
+protected:
 	audio_block_t *inputQueueArray[1];
 	audio_block_t * volatile queue[max_buffers];
 	audio_block_t *userblock;
