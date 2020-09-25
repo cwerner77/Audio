@@ -65,6 +65,7 @@ int16_t * AudioRecordQueue::readBuffer(void)
 	if (++t >= max_buffers) t = 0;
 	userblock = queue[t];
 	tail = t;
+	//Serial.println(userblock->seq);
 	return userblock->data;
 }
 

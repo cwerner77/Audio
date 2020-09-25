@@ -34,6 +34,7 @@ DMAMEM __attribute__((aligned(32))) static uint32_t i2s_rx_buffer[AUDIO_BLOCK_SA
 audio_block_t * AudioInputI2S::block_left = NULL;
 audio_block_t * AudioInputI2S::block_right = NULL;
 uint16_t AudioInputI2S::block_offset = 0;
+volatile uint32_t AudioInputI2S::seq = 0;
 bool AudioInputI2S::update_responsibility = false;
 DMAChannel AudioInputI2S::dma(false);
 
@@ -156,6 +157,8 @@ void AudioInputI2S::update(void)
 		out_right = block_right;
 		block_right = new_right;
 		block_offset = 0;
+		out_left->seq=AudioInputI2S::seq;
+		out_right->seq=AudioInputI2S::seq++;
 		__enable_irq();
 		// then transmit the DMA's former blocks
 		transmit(out_left, 0);
