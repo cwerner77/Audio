@@ -99,6 +99,9 @@ void AudioOutputI2S::isr(void)
 {
 	__disable_irq();
 	isr_count++;
+	isr_duration = ARM_DWT_CYCCNT - isr_timestamp;
+	isr_timestamp = ARM_DWT_CYCCNT;
+	
 #if defined(KINETISK) || defined(__IMXRT1062__)
 	int16_t *dest;
 	audio_block_t *blockL, *blockR;

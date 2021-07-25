@@ -32,6 +32,8 @@
 #include "DMAChannel.h"
 
 extern volatile uint32_t isr_count;
+extern volatile uint32_t isr_timestamp;
+extern volatile uint32_t isr_duration;
 
 class AudioOutputI2S : public AudioStream
 {
