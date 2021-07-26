@@ -109,9 +109,6 @@ void AudioInputI2S::isr(void)
 		src = (int16_t *)&i2s_rx_buffer[AUDIO_BLOCK_SAMPLES/2];
 		end = (int16_t *)&i2s_rx_buffer[AUDIO_BLOCK_SAMPLES];
 		if (AudioInputI2S::update_responsibility) AudioStream::update_all();
-				/* We receive 2 interrupts per block. Therefore it's okay to do the
-				 * increment in this if block! */
-		seq++;  //increment block sequence number (even if main loop is blocked!)
 	} else {
 		// DMA is receiving to the second half of the buffer
 		// need to remove data from the first half
@@ -161,7 +158,7 @@ void AudioInputI2S::update(void)
 		block_right = new_right;
 		block_offset = 0;
 		out_left->seq=AudioInputI2S::seq;
-		out_right->seq=AudioInputI2S::seq;
+		out_right->seq=AudioInputI2S::seq++;
 		__enable_irq();
 		// then transmit the DMA's former blocks
 		transmit(out_left, 0);
