@@ -532,8 +532,13 @@ bool AudioControlSGTL5000::enable(bool master)
 	write(CHIP_REF_CTRL, 0x01F2); // VAG=1.575, normal ramp, +12.5% bias current
 	write(CHIP_LINE_OUT_CTRL, 0x0F22); // LO_VAGCNTRL=1.65V, OUT_CURRENT=0.54mA
 	write(CHIP_SHORT_CTRL, 0x4446);  // allow up to 125mA
-	write(CHIP_ANA_CTRL, 0x0137);  // enable zero cross detectors
-	write(CHIP_ANA_POWER, 0x40FF); // power up: lineout, hp, adc, dac
+	write(CHIP_ANA_CTRL, 0x0137);  // enable zero cross detectors, mute outputs
+	write(CHIP_ANA_POWER, 0x45FF); // power up: lineout, hp, adc, dac, PLL, VCOAMP
+	write(CHIP_CLK_TOP_CTRL, 0x0008); // PLL input freq div: 2
+	constexpr uint32_t int_devisor = 180633600.0 / (27000000.0 / 2.0);
+	constexpr uint32_t frac_devisor = ((180633600.0 / (27000000.0 / 2.0)) - int_devisor) * 2048;
+	write(CHIP_PLL_CTRL, ((int_devisor & 0x1F) << 11) | (frac_devisor & 0x07FF)); // write PLL params
+	
 	write(CHIP_DIG_POWER, 0x0073); // power up all digital stuff
 	delay(400);
 	write(CHIP_LINE_OUT_VOL, 0x1D1D); // default approx 1.3 volts peak-to-peak
@@ -544,7 +549,7 @@ bool AudioControlSGTL5000::enable(bool master)
 	write(CHIP_ADCDAC_CTRL, 0x0000); // disable dac mute
 	write(CHIP_DAC_VOL, 0x3C3C); // digital gain, 0dB
 	write(CHIP_ANA_HP_CTRL, 0x7F7F); // set volume (lowest level)
-	write(CHIP_ANA_CTRL, 0x0036);  // enable zero cross detectors
+	write(CHIP_ANA_CTRL, 0x0036);  // enable zero cross detectors, no mute
 	//mute = false;
 	semi_automated = true;
 	return true;
