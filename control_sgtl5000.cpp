@@ -509,14 +509,12 @@ void AudioControlSGTL5000::setAddress(uint8_t level)
 	}
 }
 
-
 bool AudioControlSGTL5000::enable()
 {
-	return enable(false);
+	return enable(false, false);
 }
 
-
-bool AudioControlSGTL5000::enable(bool master)
+bool AudioControlSGTL5000::enable(bool master, bool pll)
 {
 	muted = true;
 	Wire.begin();
@@ -534,16 +532,20 @@ bool AudioControlSGTL5000::enable(bool master)
 	write(CHIP_SHORT_CTRL, 0x4446);  // allow up to 125mA
 	write(CHIP_ANA_CTRL, 0x0137);  // enable zero cross detectors, mute outputs
 	write(CHIP_ANA_POWER, 0x45FF); // power up: lineout, hp, adc, dac, PLL, VCOAMP
-	write(CHIP_CLK_TOP_CTRL, 0x0008); // PLL input freq div: 2
-	constexpr uint32_t int_devisor = 180633600.0 / (27000000.0 / 2.0);
-	constexpr uint32_t frac_devisor = ((180633600.0 / (27000000.0 / 2.0)) - int_devisor) * 2048;
-	write(CHIP_PLL_CTRL, ((int_devisor & 0x1F) << 11) | (frac_devisor & 0x07FF)); // write PLL params
-	
+	if (pll) {						// configure PLL
+		write(CHIP_CLK_TOP_CTRL, 0x0008); // PLL input freq div: 2
+		constexpr uint32_t int_devisor = 180633600.0 / (27000000.0 / 2.0);
+		constexpr uint32_t frac_devisor = ((180633600.0 / (27000000.0 / 2.0)) - int_devisor) * 2048;
+		write(CHIP_PLL_CTRL, ((int_devisor & 0x1F) << 11) | (frac_devisor & 0x07FF)); // write PLL params
+	}
 	write(CHIP_DIG_POWER, 0x0073); // power up all digital stuff
 	delay(400);
 	write(CHIP_LINE_OUT_VOL, 0x1D1D); // default approx 1.3 volts peak-to-peak
-	//write(CHIP_CLK_CTRL, 0x0004);  // 44.1 kHz, 256*Fs
-	write(CHIP_CLK_CTRL, 0x0007);  // 44.1 kHz, use PLL
+	if (pll) {
+		write(CHIP_CLK_CTRL, 0x0007);  // 44.1 kHz, use PLL
+	} else {
+		write(CHIP_CLK_CTRL, 0x0004);  // 44.1 kHz, 256*Fs
+	}
 	write(CHIP_I2S_CTRL, 0x0030|(master?0x0080:0x0000)); // SCLK=64*Fs, 16bit, I2S format
 	// default signal routing is ok?
 	write(CHIP_SSS_CTRL, 0x0010); // ADC->I2S, I2S->DAC
